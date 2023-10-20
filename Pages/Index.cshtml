@@ -1,0 +1,56 @@
+﻿@page
+@using System.Text.Json
+@model IndexModel
+@{
+    ViewData["Title"] = "Rhababo: School Search";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Texas Public School Search</h1>
+    <p>Search for your school below by name, city or zip.</p>
+    
+    <script src="js/site.js"></script>
+    <!--Make fetch request to API when user types in search bar-->
+    <script>
+       async function callAutocomplete() {
+         let input = document.getElementById("searchBar").value;
+         let response = await fetch('/api/schoolSearchSuggestions/?filter=' + input);
+         let availabletags = await response.json();
+         console.log(availabletags);
+         autocomplete(document.getElementById("searchBar"), availabletags);
+       }
+    </script>
+    <!--create searchBar-->
+    <form autocomplete="off" method="get">
+    <div class="autocomplete"   style="width:300px;">
+        <input type="text" id="searchBar" onkeyup="callAutocomplete()" asp-for="SearchString" placeholder="Search for schools..">
+    </div>
+    <input type="submit">
+    </form>
+    
+</div>
+<br>
+<!-- display a list of SCH_NAME values from Schools-->
+<!-- center the list -->
+
+
+<div class="text-center">
+    @if(Model.SearchResults.Any())
+    {
+        @foreach (var school in Model.SearchResults)
+        {
+            <div>
+                <a class="nav-link text-dark"
+                   asp-page="/SchoolData"
+                   asp-route-OBJECTID="@school.OBJECTID"
+                   >@school.GetSearchDisplay()
+                </a>
+            </div>
+        }
+    }
+    else
+    {
+        <h2>No Schools Found</h2>
+    }
+    </div>
+

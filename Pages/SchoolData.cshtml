@@ -1,0 +1,38 @@
+@page
+@using System.Text.Json
+@model SchoolDataModel
+
+@{
+    ViewData["Title"] = "School Information";
+}
+<div class="text-center">
+    @if (Model.School != null)
+    {
+        <h2 class="display-4">@Model.School.SCH_NAME</h2>
+        <p>Total Students: @Model.School.MEMBER</p>
+        <br/>
+
+    }
+    else
+    {
+        <h2> "No School Found" </h2>
+    }
+</div>  
+
+<div id="schoolnut" data-obj="@JsonSerializer.Serialize(Model.School)" class = chart-container>
+    <p>Demographic Information</p>
+    <br/>
+    <canvas id="doughnutChart"></canvas>
+    <script src="~/js/site.js"></script>
+    <script>
+        let jsonstring = $('#schoolnut').data('obj');
+            initializeSchoolDemoPieChart(jsonstring);
+    </script>
+</div>
+
+<!--Button for generating a student, Redirects to StudentGenerator page with ObjectID of school-->
+<div class="text-center p-5">
+<a class="btn btn-primary" asp-page="/StudentGenerator" asp-route-OBJECTID="@Model.School.OBJECTID">Generate Student</a>
+</div>
+  
+

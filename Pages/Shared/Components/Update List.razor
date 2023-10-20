@@ -1,0 +1,15 @@
+<h3>@Message</h3>
+
+<button @onclick="MyFunc">Click Me!</button>
+@using Data
+
+@code {
+    private String? Message { get; set; }
+    private readonly DataAccess _dataAccess;
+    
+    private void MyFunc()
+    {
+        Message = "Hello Blazor in Razor";
+    }
+
+}

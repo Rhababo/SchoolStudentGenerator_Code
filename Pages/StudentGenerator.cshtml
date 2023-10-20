@@ -1,0 +1,457 @@
+@page
+@using System.Text.Json
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model SchoolSearch.Pages.StudentGeneratorModel
+
+@{
+    ViewData["Title"]="Student Generator";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <div class = "card shadow p-3 mb-5 bg-white rounded" id="mainStuCard">
+                <h2 class="card-title" id="studentIntro"></h2>
+                        <script>
+                            if(!@Model.StudentGenerated)
+                            {
+                                 document.getElementById("studentIntro").innerHTML = "Select a school to generate a student.";
+                            }
+                            else
+                            {
+                                document.getElementById("studentIntro").innerHTML = 
+                                "@Model.Student.MyFirstName @Model.Student.MyLastName is a student at @Model.Student.MySchool.SchoolNameCamelCase()";
+                            }
+                        </script>
+    
+                        <h3 class="card-body" id="studentDetails"></h3>
+                            <div class="accordion" id="stuAccordion">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="Birthday">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBirthday" aria-expanded="false" aria-controls="collapseBirthday">
+                                            Birthday
+                                        </button>
+                                    </h2>
+                                    <div id="collapseBirthday" class="accordion-collapse collapse" aria-labelledby="Birthday" data-bs-parent="#stuAccordion">
+                                        <div class="accordion-body" id="stuBirthday"></div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="RaceEthnicity">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRace" aria-expanded="false" aria-controls="collapseRace">
+                                            Race/Ethnicity
+                                        </button>
+                                    </h2>
+                                    <div id="collapseRace" class="accordion-collapse collapse" aria-labelledby="RaceEthnicity" data-bs-parent="#stuAccordion">
+                                        <div class="accordion-body" id="stuRace"></div>
+                                    </div>
+                                </div>
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="Interests">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseInt" aria-expanded="false" aria-controls="collapseInt">
+                                            Some Interests
+                                            </button>
+                                        </h2>
+                                    <div id="collapseInt" class="accordion-collapse collapse" aria-labelledby="Interests" data-bs-parent="#stuAccordion">
+                                        <div class="accordion-body" id="stuInt"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        <script>
+                            if (@Model.StudentGenerated)
+                             {
+                                  var pronoun = "He";
+                                  if ("@Model.Student.MySex" == "Female")
+                                        pronoun = "She";
+                                  document.getElementById("studentDetails").innerHTML = pronoun + " is a @Model.Student.MyAge year old student in @Model.Student.MyGrade";
+                                  document.getElementById("stuBirthday").innerHTML = "@Model.Student.MyBirthDate";
+                                  document.getElementById("stuRace").innerHTML = "@Model.Student.MyRace";
+                                  document.getElementById("stuInt").innerText = "@Model.Student.MyInterests[0] \n @Model.Student.MyInterests[1] \n @Model.Student.MyInterests[2]";
+                            }
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<div class = "d-grid gap-5" id="interface">
+    <div class="row gy-5">
+        <div class="col" >
+            <!-- Button for generating another student -->
+            <div class="text-center">
+                <a class="btn btn-primary" asp-page="/StudentGenerator" asp-route-OBJECTID="@Model.School.OBJECTID">Generate Another Student</a>
+            </div>
+        </div>
+        <div class="col">
+            <h5 class="text-center">OR</h5>
+        </div>
+        <div class="col text-center">
+            <!-- Button for generating a class -->
+            <button class="btn btn-primary" type="button" onclick="checkIfGenerated()">Generate a Class</button>
+        </div>
+    </div>
+    <div class="row gy-5" id="classGenerator">
+            <!--<div class="container" id="classGenerator"></div>-->
+    </div>
+</div>
+
+
+
+<!-- If the OBJECTID is not valid, then Generate a class button produces a modal instead-->
+<script>
+    function checkIfGenerated()
+    {
+        if (!@Model.StudentGenerated.ToString().ToLower())
+        {
+            displaySelectSchoolModal();
+        }
+        else
+        {
+            showGenerateContainers();
+        }
+    }
+</script>
+
+<script>
+  
+    function displaySelectSchoolModal() {
+        
+        var modal = document.createElement("div");
+        modal.className = "modal fade";
+        modal.id = "selectSchoolModal";
+        modal.setAttribute("tabindex", "-1");
+        modal.setAttribute("aria-labelledby", "selectSchoolModalLabel");
+        modal.setAttribute("aria-hidden", "true");
+        modal.setAttribute("data-bs-backdrop", "static");
+        modal.setAttribute("data-bs-keyboard", "false");
+        var modalDialog = document.createElement("div");
+        modalDialog.className = "modal-dialog";
+        var modalContent = document.createElement("div");
+        modalContent.className = "modal-content";
+        var modalHeader = document.createElement("div");
+        modalHeader.className = "modal-header";
+        var modalTitle = document.createElement("h5");
+        modalTitle.className = "modal-title";
+        modalTitle.id = "selectSchoolModalLabel";
+        modalTitle.innerText = "Select a School";
+        var modalCloseButton = document.createElement("button");
+        modalCloseButton.className = "btn-close";
+        modalCloseButton.setAttribute("type", "button");
+        modalCloseButton.setAttribute("data-bs-dismiss", "modal");
+        modalCloseButton.setAttribute("aria-label", "Close");
+        var modalBody = document.createElement("div");
+        modalBody.className = "modal-body";
+        modalBody.innerText = "Please select a school from the school search page.";
+        var modalFooter = document.createElement("div");
+        modalFooter.className = "modal-footer";
+        var modalFooterCloseButton = document.createElement("button");
+        modalFooterCloseButton.className = "btn btn-primary";
+        modalFooterCloseButton.setAttribute("type", "button");
+        modalFooterCloseButton.setAttribute("data-bs-dismiss", "modal");
+        modalFooterCloseButton.innerText = "Close";
+        var modalFooterRedirectButton = document.createElement("button");
+        modalFooterRedirectButton.className = "btn btn-primary";
+        modalFooterRedirectButton.setAttribute("type", "button");
+        modalFooterRedirectButton.innerText = "Search for a School";
+        modalFooterRedirectButton.addEventListener("click", function () {
+            window.location.href = "#";
+        });
+        modalFooter.appendChild(modalFooterCloseButton);
+        modalFooter.appendChild(modalFooterRedirectButton);
+        modalHeader.appendChild(modalTitle);
+        modalHeader.appendChild(modalCloseButton);
+        modalContent.appendChild(modalHeader);
+        modalContent.appendChild(modalBody);
+        modalContent.appendChild(modalFooter);
+        modalDialog.appendChild(modalContent);
+        modal.appendChild(modalDialog);
+       
+        document.body.appendChild(modal);
+        
+        $('#selectSchoolModal').modal('show');
+    }
+    
+</script>
+
+<script>
+function showGenerateContainers() {
+    var classGenContainer = document.getElementById("classGenerator");
+    //clear any existing elements
+    classGenContainer.innerHTML = "";
+   
+    //create row to structure the elements
+    var classGenRow = document.createElement("div");
+    classGenRow.className = "row .gy-5";
+    
+    //create ClassGenerator Button
+    var classGenlabel = document.createElement("label");
+    classGenlabel.setAttribute("for","containerNumber");
+    classGenlabel.innerHTML = "Enter the number of students (max 40):";
+    var classGenInput = document.createElement("input");
+    classGenInput.type = "number";
+    classGenInput.id = "containerNumber";
+    classGenInput.min = "1";
+    classGenInput.max = "40";
+    var classGenButton = document.createElement("button");
+    classGenButton.className = "btn btn-primary";
+    classGenButton.type = "button";
+    classGenButton.addEventListener('click', generateCards)
+    classGenButton.id = "GenerateClassButton";
+    classGenButton.innerHTML = "Generate Class";
+    
+    //create the gradeLevelSelector dropdown
+    var gradeLevelSelector = document.createElement("div");
+    gradeLevelSelector.className = "dropdown";
+    var gradeLevelButton = document.createElement("button");
+    gradeLevelButton.className = "btn btn-secondary dropdown-toggle";
+    gradeLevelButton.type = "button";
+    gradeLevelButton.id = "gradeLevelSelect";
+    gradeLevelButton.setAttribute("data-bs-toggle","dropdown");
+    gradeLevelButton.setAttribute("aria-expanded","false");
+    gradeLevelButton.innerText = "Select Grade Level";
+    var gradeLevelList = document.createElement("ul");
+    gradeLevelList.className = "dropdown-menu";
+    gradeLevelList.id = "gradeLevelList";
+    gradeLevelList.setAttribute("aria-labelledby","gradeLevelSelect");
+    var schoolGradeLevels = [];
+    @foreach (var grade in Model.getGradeLevelStrings())
+    {
+        @:schoolGradeLevels.push("@grade");
+    }
+    
+    //create the random gradeLevelList item
+    //This may create odd class types for PK-HS schools. 
+    var randomGradeLevel = document.createElement("li");
+    randomGradeLevel.id="RandomGradeLevel"
+    randomGradeLevel.innerHTML = "<a class='dropdown-item'>Random</a>";
+    randomGradeLevel.addEventListener('click', function() {
+        gradeLevelButton.innerText = this.innerText;
+    });
+    gradeLevelList.appendChild(randomGradeLevel);
+    
+    //create the gradeLevelList items from the school's gradeLevelList
+    for (var j = 0; j < @Model.School.GradeLevelList().Count; j++)
+    {
+            var gradeLevelItem = document.createElement("li");
+            gradeLevelItem.id = schoolGradeLevels[j];
+            gradeLevelItem.innerHTML = "<a class='dropdown-item'>" + schoolGradeLevels[j] + "</a>";
+            gradeLevelItem.addEventListener('click', function() {
+                gradeLevelButton.innerText = this.innerText;
+            });
+            gradeLevelList.appendChild(gradeLevelItem);
+            
+            var gradeLevelItemMostly = document.createElement("li");
+            gradeLevelItemMostly.id = "Mostly "+schoolGradeLevels[j];
+            gradeLevelItemMostly.innerHTML = "<a class='dropdown-item'>Mostly " + schoolGradeLevels[j] + "</a>";
+            gradeLevelItemMostly.addEventListener('click', function() {
+                gradeLevelButton.innerText = this.innerText;
+            });
+            gradeLevelList.appendChild(gradeLevelItemMostly);
+    }
+    gradeLevelSelector.appendChild(gradeLevelButton);
+    gradeLevelSelector.appendChild(gradeLevelList);
+    
+    //Create col for classGenlabel/Input
+    var classGenLabelCol = document.createElement("div");
+    classGenLabelCol.className = "col text-center";
+    classGenLabelCol.appendChild(classGenlabel);
+    classGenLabelCol.appendChild(classGenInput);
+    
+    //Create col for gradeLevelSelector
+    var gradeLevelSelectorCol = document.createElement("div");
+    gradeLevelSelectorCol.className = "col text-center";
+    gradeLevelSelectorCol.appendChild(gradeLevelSelector);
+    
+    //Create col for classGenButton
+    var classGenButtonCol = document.createElement("div");
+    classGenButtonCol.className = "col text-center";
+    classGenButtonCol.appendChild(classGenButton);
+    
+   /* //add the cols to the row
+    classGenRow.appendChild(classGenLabelCol);
+    classGenRow.appendChild(gradeLevelSelectorCol);
+    classGenRow.appendChild(classGenButtonCol);*/
+    
+    classGenContainer.appendChild(classGenLabelCol);
+    classGenContainer.appendChild(gradeLevelSelectorCol);
+    classGenContainer.appendChild(classGenButtonCol);
+        
+    //display the inputs and button
+    //classGenContainer.appendChild(classGenRow);
+}
+</script>
+
+
+<div class="container-fluid" id="cardHolder"></div>
+<script>
+//This function is used to generate the info for student text
+function studentInfoHTML(student, i)
+{
+    //create the student accordion
+    var studentAccordion = document.createElement("div");
+    studentAccordion.className = "accordion";
+    studentAccordion.id = "student"+i+"Accordion";
+    
+    //create the student birthday item
+    var studentBirthdayItem = document.createElement("div");
+    studentBirthdayItem.className = "accordion-item";
+    var studentBirthdayHeader = document.createElement("h2");
+    studentBirthdayHeader.className = "accordion-header";
+    studentBirthdayHeader.id = "student"+i+"Birthday";
+    var studentBirthdayButton = document.createElement("button");
+    studentBirthdayButton.className = "accordion-button collapsed";
+    studentBirthdayButton.type = "button";
+    studentBirthdayButton.setAttribute("data-bs-toggle","collapse");
+    studentBirthdayButton.setAttribute("data-bs-target","#collapseStudent"+i+"Birthday");
+    studentBirthdayButton.setAttribute("aria-expanded","false");
+    studentBirthdayButton.setAttribute("aria-controls","collapseStudent"+i+"Birthday");
+    studentBirthdayButton.innerHTML = "Birthday";
+    var studentBirthdayCollapse = document.createElement("div");
+    studentBirthdayCollapse.id = "collapseStudent"+i+"Birthday";
+    studentBirthdayCollapse.className = "accordion-collapse collapse";
+    studentBirthdayCollapse.setAttribute("aria-labelledby","student"+i+"Birthday");
+    studentBirthdayCollapse.setAttribute("data-bs-parent","#student"+i+"Accordion");
+    var studentBirthdayBody = document.createElement("div");
+    studentBirthdayBody.className = "accordion-body";
+    studentBirthdayBody.innerText = student.myBirthDayString;
+    
+    //Combine birthday elements
+    studentBirthdayCollapse.appendChild(studentBirthdayBody);
+    studentBirthdayHeader.appendChild(studentBirthdayButton);
+    studentBirthdayItem.appendChild(studentBirthdayHeader);
+    studentBirthdayItem.appendChild(studentBirthdayCollapse);
+    
+    //Create the student race item
+    var studentRaceItem = document.createElement("div");
+    studentRaceItem.className = "accordion-item";
+    var studentRaceHeader = document.createElement("h2");
+    studentRaceHeader.className = "accordion-header";
+    studentRaceHeader.id = "student"+i+"Race";
+    var studentRaceButton = document.createElement("button");
+    studentRaceButton.className = "accordion-button collapsed";
+    studentRaceButton.type = "button";
+    studentRaceButton.setAttribute("data-bs-toggle","collapse");
+    studentRaceButton.setAttribute("data-bs-target","#collapseStudent"+i+"Race");
+    studentRaceButton.setAttribute("aria-expanded","false");
+    studentRaceButton.setAttribute("aria-controls","collapseStudent"+i+"Race");
+    studentRaceButton.innerText = "Race/Ethnicity";
+    var studentRaceCollapse = document.createElement("div");
+    studentRaceCollapse.id = "collapseStudent"+i+"Race";
+    studentRaceCollapse.className = "accordion-collapse collapse";
+    studentRaceCollapse.setAttribute("aria-labelledby","student"+i+"Race");
+    studentRaceCollapse.setAttribute("data-bs-parent","#student"+i+"Accordion");
+    var studentRaceBody = document.createElement("div");
+    studentRaceBody.className = "accordion-body";
+    studentRaceBody.innerText = student.myRace;
+    
+    //Combine Race elements
+    studentRaceCollapse.appendChild(studentRaceBody);
+    studentRaceHeader.appendChild(studentRaceButton);
+    studentRaceItem.appendChild(studentRaceHeader);
+    studentRaceItem.appendChild(studentRaceCollapse);
+    
+    //Create the student Interests item
+    var studentInterestsItem = document.createElement("div");
+    studentInterestsItem.className = "accordion-item";
+    var studentInterestsHeader = document.createElement("h2");
+    studentInterestsHeader.className = "accordion-header";
+    studentInterestsHeader.id = "student"+i+"Interests";
+    var studentInterestsButton = document.createElement("button");
+    studentInterestsButton.className = "accordion-button collapsed";
+    studentInterestsButton.type = "button";
+    studentInterestsButton.setAttribute("data-bs-toggle","collapse");
+    studentInterestsButton.setAttribute("data-bs-target","#collapseStudent"+i+"Interests");
+    studentInterestsButton.setAttribute("aria-expanded","false");
+    studentInterestsButton.setAttribute("aria-controls","collapseStudent"+i+"Interests");
+    studentInterestsButton.innerText = "Some Interests";
+    var studentInterestsCollapse = document.createElement("div");
+    studentInterestsCollapse.id = "collapseStudent"+i+"Interests";
+    studentInterestsCollapse.className = "accordion-collapse collapse";
+    studentInterestsCollapse.setAttribute("aria-labelledby","student"+i+"Interests");
+    studentInterestsCollapse.setAttribute("data-bs-parent","#student"+i+"Accordion");
+    var studentInterestsBody = document.createElement("div");
+    studentInterestsBody.className = "accordion-body";
+    studentInterestsBody.innerText = student.myInterests[0]+"\n\n"+student.myInterests[1]+"\n\n"+student.myInterests[2];
+    
+    //Combine Interests elements
+    studentInterestsCollapse.appendChild(studentInterestsBody);
+    studentInterestsHeader.appendChild(studentInterestsButton);
+    studentInterestsItem.appendChild(studentInterestsHeader);
+    studentInterestsItem.appendChild(studentInterestsCollapse);
+    
+    
+    //Add both items to the accordion
+    studentAccordion.appendChild(studentBirthdayItem);
+    studentAccordion.appendChild(studentRaceItem);
+    studentAccordion.appendChild(studentInterestsItem);
+    
+    //Return the accordion
+    return studentAccordion;
+}
+</script>
+
+<script>
+async function generateCards() {
+    // Disable the button while we generate the containers
+    var generateButton = document.getElementById("GenerateClassButton");
+    generateButton.disabled = true;
+    //Add a spinner to the button
+    generateButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Generating...';
+    // Get the number of containers to generate
+    var containerNumberInput = document.getElementById("containerNumber");
+    var containerNumber = parseInt(containerNumberInput.value);
+
+    // Clear any existing cards
+    var cardHolder = document.getElementById("cardHolder");
+    cardHolder.innerHTML = "";
+    
+    if (!containerNumber)
+    {
+        containerNumber = 1;
+    }
+    var gradeLevelSelectText = document.getElementById("gradeLevelSelect").innerText;
+    if (gradeLevelSelectText == "Select Grade Level")
+    {
+        gradeLevelSelectText = "Random";
+    }
+
+    //Get the students from the API
+    let response = await fetch('/api/classroomGenerator/?schoolId=' + @Model.OBJECTID + '&size=' + containerNumber + '&grade=' + gradeLevelSelectText);
+    let classroom = await response.json();
+    console.log(classroom);
+    
+    // Generate the specified number of cards
+    // Put cards in rows of 3
+   for (var i = 0; i < containerNumber; i++) {
+        if (i % 3 == 0) {
+            var row = document.createElement("div");
+            row.classList.add("row");
+            cardHolder.appendChild(row);
+        }
+        var col = document.createElement("div");
+        col.classList.add("col-sm-4");
+        var stucard = document.createElement("div");
+        var stucardbody = document.createElement("div");
+        var stuName = document.createElement("h5");
+        stucard.classList.add("card","shadow", "p-3", "mb-5", "bg-white", "rounded");
+        stucardbody.classList.add("card-body");
+        stuName.classList.add("card-title");
+        stuName.innerText = classroom[i].myFirstName + " " + classroom[i].myLastName;
+        var stuPronoun ="He";
+        if (classroom[i].MySex == "Female")
+        {
+            stuPronoun = "She";
+        }
+        stucardbody.innerText= stuPronoun+" is a "+classroom[i].myAge+" year old student in "+classroom[i].myGrade+".";
+        stucardbody.appendChild(studentInfoHTML(classroom[i], i));
+        stucard.appendChild(stuName);
+        stucard.appendChild(stucardbody);
+        col.appendChild(stucard);
+        row.appendChild(col);
+    }
+    // Re-enable the button
+    generateButton.disabled = false;
+    generateButton.innerHTML = "Generate Cards";
+}
+</script>
+

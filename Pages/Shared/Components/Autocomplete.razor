@@ -1,0 +1,80 @@
+<h3>Autocomplete</h3>
+@inject NavigationManager Navigator
+@using SchoolSearch.Models
+
+@code {
+    List<SchoolSearchResult>? _ssResults;
+    int? _selectedSchoolId;
+    string? _selectedSchoolName;
+    string? _filter;
+ 
+    async Task HandleInput(ChangeEventArgs e)
+    {
+        _filter = e.Value?.ToString();
+        if (_filter?.Length > 2)
+        {
+            try
+            {
+                _ssResults = await Http.GetFromJsonAsync<List<SchoolSearchResult>>(Navigator.BaseUri+"api/schoolSearchTerms?filter="+_filter);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error getting school search results");
+                Console.WriteLine("Attempted URL:"+Navigator.BaseUri+"api/schoolSearchTerms?filter="+_filter);
+                Console.WriteLine(ex.Message);
+            }
+        }
+        else
+        {
+            _ssResults = null;
+            _selectedSchoolName = null;
+            _selectedSchoolId = null;
+        }
+        foreach(var result in _ssResults)
+        {
+            Console.WriteLine(result.OBJECTID);
+            Console.WriteLine(result.SCH_NAME);
+        }
+    }
+ 
+    void SelectSchool(int id)
+    {
+        _selectedSchoolId = id;
+        _selectedSchoolName = _ssResults!.First(c => c.OBJECTID.Equals(_selectedSchoolId)).SCH_NAME;
+        _ssResults = null;
+    }
+}
+
+@inject HttpClient Http
+ 
+<h3>Autocomplete Demo</h3>
+ 
+<div class="autocomplete w-25">
+    <input @bind=_selectedSchoolName @oninput=HandleInput class="form-control filter" />
+    @if (_ssResults is not null)
+    {
+        <ul class="options">
+            @if (_ssResults.Any())
+            {
+                @foreach (var school in _ssResults)
+                {
+                  //  @Console.WriteLine(school.OBJECTID);
+                   // @Console.WriteLine(school.SCH_NAME);
+                    <li class="option" @onclick=@(_ => SelectSchool(school.OBJECTID))>
+                        <span class="option-text">@school.SCH_NAME</span>
+                    </li>
+                }
+            }
+            else
+            {
+                <li class="disabled option">No results</li>
+            }
+        </ul>
+    }
+</div>
+@if (!string.IsNullOrWhiteSpace(_selectedSchoolName))
+{
+    <p class="mt-3">
+        Selected customer is @_selectedSchoolName with ID <strong>@_selectedSchoolId</strong>
+    </p>
+}
